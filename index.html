@@ -60,13 +60,14 @@ span.black {color:#000000;font-weight:bold;font-family:Calibri;font-size:20;}
 
 	/* pre-questionnaire */
     // defining response scales that can be used.
-	var page_1_questions = ["Gender", "Age"];
-    var page_1_options = ["Male", "Female", "Choose not to answer"];
+	var page_1_questions = ["Gender:", "Age:"];
+    var page_1_options = ["Male", "Female", "Other"];
     var page_2_options = ["18-25", "26-35", "36-45", "46-55", "56-65", "66-75", "75 or older"];
 
 	var multi_choice_block = {
       type: 'survey-multi-choice',
-      questions: [{prompt: "Gender", options: page_1_options, required:false,}, {prompt: "Age", options: page_2_options, required:false}],
+      questions: [{prompt: "Gender:", options: page_1_options, required:false, horizontal: true,},
+                  {prompt: "Age:", options: page_2_options, required:false, horizontal:false}],
     };
 
 
@@ -83,11 +84,11 @@ span.black {color:#000000;font-weight:bold;font-family:Calibri;font-size:20;}
       questions: [{prompt: "I book a hotel for leisure", labels: scale_2},
       {prompt: "I book a hotel for business purposes", labels: scale_2}],
       };
-    var likert_procedure = {
+  var likert_procedure = {
       timeline: [likert_bookings, likert_typeofclient],
       randomize_order: false,
     }
-    timeline.push(likert_procedure);
+  timeline.push(likert_procedure);
 	timeline.push(multi_choice_block);
     /* define instructions trial */
     var instructions = {
@@ -98,7 +99,6 @@ span.black {color:#000000;font-weight:bold;font-family:Calibri;font-size:20;}
           "<p>Answer whether you feel this price is either <strong> cheap </strong> or <strong> expensive </strong> for the hotel you just saw. " +
           "Please answer within 1.5 seconds.</p>" +
           "<p> Press the <strong> Z-key for cheap </strong> and the <strong> M-key for expensive </strong> </p>" +
-          "<div style='width: 700px;'>"+
           "<p>Press any key to begin with a practice round.</p> ",
       post_trial_gap: 1000
     };
