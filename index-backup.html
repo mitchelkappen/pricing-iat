@@ -2,38 +2,210 @@
 <head>
     <meta charset='UTF-8'>
     <meta name="robots" content="noindex">
-    <title>The Experiment Factory: Adaptive N-Back</title>
+    <title>My experiment</title>
 
-<link rel='stylesheet' type='text/css' href='jspsych.css'>
-<link rel='stylesheet' type='text/css' href='default_style.css'>
-<link rel='stylesheet' type='text/css' href='style.css'>
+<link rel='stylesheet' type='text/css' href='css/jspsych.css'>
+<link rel='stylesheet' type='text/css' href='css/default_style.css'>
+<link rel='stylesheet' type='text/css' href='css/style.css'>
+<link href="css/jspsych.css" rel="stylesheet" type="text/css"></link>
+
+<style type="text/css">
+p.location {font-weight:bold;font-family:Calibri;font-size:20;left: 470px;top: 600px;position: fixed;   // Declared as static }
+p.midden {left: center; top: 600px; position: fixed;}
+</style>
+
 </head>
 
 <body>
+<script src="plugins/jspsych.js"></script>
+<script src="plugins/jspsych-instructions.js"></script>
+<script src="plugins/jspsych-html-keyboard-response.js"></script>
+<script src="plugins/jspsych-image-keyboard-response.js"></script>
+<script src="plugins/jspsych-survey-likert.js"></script>
+<script src="plugins/jspsych-fullscreen.js"></script>
+<script src="plugins/jspsych-categorize-image.js"></script>
+<script src="plugins/jspsych-categorize-html.js"></script>
 
-<script src='plugins/jspsych.js'></script>
-<script src='plugins/jspsych-text.js'></script>
+<script src='plugins/jspsych-call-function.js'></script>
+<script src='plugins/jspsych-survey-text.js'></script>
 
-<script src='experiment.js'></script>
+<script src='plugins/poldrack_plugins/jspsych-poldrack-text.js'></script>
+<script src='plugins/poldrack_plugins/jspsych-poldrack-categorize.js'></script>
+<script src='plugins/poldrack_plugins/jspsych-poldrack-instructions.js'></script>
+<script src='plugins/poldrack_plugins/jspsych-attention-check.js'></script>
+<script src='plugins/poldrack_plugins/jspsych-poldrack-single-stim.js'></script>
+<script src='plugins/poldrack_plugins/jspsych-single-stim-button.js'></script>
 
 <script>
 
+    /* create timeline */
+    var timeline = [];
 
-jsPsych.init({
-  timeline: timeline,
-  on_finish: function() {
-  jsPsych.data.displayData(); // displaying in browser in trial by trial form
-  //jsPsych.data.displayData('csv'); // displaying in browser in csv form
+    timeline.push({
+        type: 'fullscreen',
+        fullscreen_mode: true
+      });
 
-  // select all trials
-  var all_data = jsPsych.data.get();
-  // get csv representation of data and log to console
-  console.log(all_data.csv());
-  // jsPsych.data.get().localSave('csv','mydata.csv'); // Save localy as csv
-  // When collecting online, visit: https://www.jspsych.org/overview/data/ for instructions on saving
-}
-});
+    /* create random participantID */
+    var subject_id = jsPsych.randomization.randomID(5);
+      jsPsych.data.addProperties({
+      subject: subject_id,
+      });
 
-</script>
-</body>
-</html>
+    var welcome = {
+      type: 'instructions',
+      pages: ['Welcome to the experiment. Click next to begin.',
+        'You are going to participate in a study on hotel\'s <p>Before we start the experiment, we will ask you to answer several demographic questions'],
+      show_clickable_nav: true,
+      show_page_number: false
+    }
+    timeline.push(welcome);
+
+    /* pre-questionnaire */
+    // defining response scales that can be used.
+    var scale_1 = ["Strongly Disagree","","Disagree","","Neutral","","Agree","","Strongly Agree"];
+
+    var likert_bookings = {
+      type: 'survey-likert',
+      questions: [{prompt: "I use websites like Bookings.com often", labels: scale_1}],
+      };
+
+    var likert_procedure = {
+      timeline: [likert_bookings],
+      randomize_order: false,
+      // repetitions: 3
+    }
+
+    // timeline.push(likert_scale);
+    timeline.push(likert_procedure);
+
+    /* define instructions trial */
+    var instructions = {
+      type: "html-keyboard-response",
+      stimulus: "<p>In this experiment, you will first see a fixation cross " +
+          "on the screen.</p><p>Then, shortly, you will see a <strong>picture</strong>. " +
+          "After the picture disappears a <strong> price </strong> will be shown. </p>" +
+          "<p>Answer whether you feel this price is either <strong> cheap </strong> or <strong> expensive </strong> for the picture you just saw. " +
+          "Please answer within 1.5 seconds.</p>" +
+          "<p> Press the <strong> F-key for cheap </strong> and the <strong> J-key for expensive </strong> </p>" +
+          "<div style='width: 700px;'>"+
+          /*"<div style='float: left;'><img src='img/blue.png'></img>" +
+          "<p class='small'><strong>Press the F key</strong></p></div>" +
+          "<div class='float: right;'><img src='img/orange.png'></img>" +
+          "<p class='small'><strong>Press the J key</strong></p></div>" +
+          "</div>"+*/
+          "<p>Press any key to begin.</p>",
+      post_trial_gap: 1000
+    };
+    timeline.push(instructions);
+
+    var factors = {
+      logos: ['img/bar/bar_1.jpg', 'img/bar/bar_2.jpg','img/bar/bar_3.jpg','img/bar/bar_4.jpg','img/bar/bar_5.jpg',
+              'img/bathroom/bathroom_1.jpg','img/bathroom/bathroom_2.jpg','img/bathroom/bathroom_3.jpg','img/bathroom/bathroom_4.jpg','img/bathroom/bathroom_5.jpg',
+              'img/lobby/lobby_1.jpg','img/lobby/lobby_2.jpg','img/lobby/lobby_3.jpg','img/lobby/lobby_4.jpg','img/lobby/lobby_5.jpg',],
+      words: ['<div class = centerbox><div class = center-text>$100</div></div>','<div class = centerbox><div class = center-text>$200</div></div>']
+    }
+
+    var full_design = jsPsych.randomization.factorial(factors, 1);
+
+    var big_space = '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0';
+
+// show fixation cross
+    var fixation = {
+      type: 'html-keyboard-response',
+      stimulus: '<div style="font-size:60px;">+</div>',
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 900,
+      data: {test_part: 'fixation'}
+    }
+// show image
+    var test = {
+      type: "image-keyboard-response",
+      // type: "categorize-image",
+      data: { screen_type: 'logo'},
+      stimulus: jsPsych.timelineVariable('logos'),
+      // stimulus: logos,
+      choices: jsPsych.NO_KEYS,
+      //data: jsPsych.timelineVariable('data'),
+      trial_duration: 2000,
+      /* on_finish: function(data){ */
+      /* data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+    } */
+    }
+
+    // show target word
+    var word = {
+        // type: 'image-keyboard-response',
+      type: "categorize-html",
+      data: { screen_type: 'targetWord'},
+      stimulus: jsPsych.timelineVariable('words'),
+      choices: ['f','j'],
+      data: jsPsych.timelineVariable('data'),
+      trial_duration: 1500,
+      show_stim_with_feedback: false,
+      incorrect_text: "<p class='prompt'> </p>",
+      prompt: '<p class="midden"><p class="location">Cheap (F)' + big_space + 'Expensive (J)</p></p>',
+      feedback_duration: 1400, // duration of white before next trial starts
+      timeout_message: '<div class = centerbox><div class = center-text>Too Slow!</div></div>',
+        }
+
+    var test_procedure = {
+      timeline: [fixation, test, word],
+      timeline_variables: full_design,
+      randomize_order: true,
+      // repetitions: 3
+    }
+
+    timeline.push(test_procedure);
+
+    /* define debrief */
+
+    var debrief_block = {
+      type: "html-keyboard-response",
+      stimulus: function() {
+
+    var trials = jsPsych.data.get().filter({test_part: 'test'});
+    // var correct_trials = trials.filter({correct: true});
+    // var accuracy = Math.round(correct_trials.count() / trials.count() * 100);
+    // var rt = Math.round(correct_trials.select('rt').mean());
+    var rt = Math.round(trials.select('rt').mean());
+    var trialNums = trials.count();
+/*
+    return "<p>Number of Trials "+trialNums+"% of the trials.</p>"+
+          "<p>Average response time on Happy x Rabo = "+rt+"ms.</p>"+
+          "<p>Average response time on Sad x Rabo = "+rt+"ms.</p>"+
+          "<p>Average response time on Angry x Rabo = "+rt+"ms.</p>"+
+          "<p>Press any key to complete the experiment. Thank you!</p>"; */
+          }
+        };
+
+    timeline.push(debrief_block);
+
+    timeline.push({
+      type: 'fullscreen',
+      fullscreen_mode: false
+    });
+
+
+
+    /* start the experiment */
+    jsPsych.init({
+      timeline: timeline,
+      fullscreen: true,
+      on_finish: function() {
+      jsPsych.data.displayData(); // displaying in browser in trial by trial form
+      //jsPsych.data.displayData('csv'); // displaying in browser in csv form
+
+      // select all trials
+      var all_data = jsPsych.data.get();
+      // get csv representation of data and log to console
+      console.log(all_data.csv());
+      jsPsych.data.get().localSave('csv','mydata.csv'); // Save localy as csv
+      // When collecting online, visit: https://www.jspsych.org/overview/data/ for instructions on saving
+      jsPsych.data.localSave('brand-experiment-results.csv', 'csv');
+    }
+    });
+
+  </script>
+  </body>
+  </html>

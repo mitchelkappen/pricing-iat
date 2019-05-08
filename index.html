@@ -8,6 +8,11 @@
 <link rel='stylesheet' type='text/css' href='css/default_style.css'>
 <link rel='stylesheet' type='text/css' href='css/style.css'>
 <link href="css/jspsych.css" rel="stylesheet" type="text/css"></link>
+
+<style type="text/css">
+span.green { color:#00ff00;font-weight:bold;font-family:Calibri;font-size:20;    // Declared as static }
+span.red { color:#FF0000;font-weight:bold;font-family:Calibri;font-size:20;   // Declared as static }
+</style>
 </head>
 
 <body>
@@ -18,9 +23,12 @@
 <script src="plugins/jspsych-survey-likert.js"></script>
 <script src="plugins/jspsych-fullscreen.js"></script>
 <script src="plugins/jspsych-categorize-image.js"></script>
+<script src="plugins/jspsych-categorize-html.js"></script>
+<script src="plugins/jspsych-survey-multi-choice.js"></script>
 
 <script src='plugins/jspsych-call-function.js'></script>
 <script src='plugins/jspsych-survey-text.js'></script>
+
 
 <script src='plugins/poldrack_plugins/jspsych-poldrack-text.js'></script>
 <script src='plugins/poldrack_plugins/jspsych-poldrack-categorize.js'></script>
@@ -30,163 +38,226 @@
 <script src='plugins/poldrack_plugins/jspsych-single-stim-button.js'></script>
 
 <script>
-
     /* create timeline */
     var timeline = [];
-
     timeline.push({
         type: 'fullscreen',
         fullscreen_mode: true
       });
-
     /* create random participantID */
-    var subject_id = jsPsych.randomization.randomID(5);
+    var subject_id = jsPsych.randomization.randomID(10);
       jsPsych.data.addProperties({
       subject: subject_id,
       });
-
     var welcome = {
       type: 'instructions',
       pages: ['Welcome to the experiment. Click next to begin.',
-        'You are going to participate in a study on hotel\'s <p>Before we start the experiment, we will ask you to answer several demographic questions'],
+        'You are going to participate in a study on hotels <p>Before we start the experiment, we will ask you to answer several demographic questions'],
       show_clickable_nav: true,
       show_page_number: false
     }
     timeline.push(welcome);
 
-    /* pre-questionnaire */
-    // defining response scales that can be used.
-    var scale_1 = ["Strongly Disagree","","Disagree","","Neutral","","Agree","","Strongly Agree"];
 
-    var likert_bookings = {
+	/* pre-questionnaire */
+    // defining response scales that can be used.
+	var page_1_questions = ["Gender", "Age"];
+    var page_1_options = ["Male", "Female", "Choose not to answer"];
+    var page_2_options = ["18-25", "26-35", "36-45", "46-55", "56-65", "66-75", "75 or older"];
+
+	var multi_choice_block = {
+      type: 'survey-multi-choice',
+      questions: [{prompt: "Gender", options: page_1_options, required:false,}, {prompt: "Age", options: page_2_options, required:false}],
+    };
+
+
+	var scale_1 = ["Strongly Disagree","Disagree","Neutral","Agree","Strongly Agree"];
+	var scale_2 = ["Never", "Every now and then", "Often"];
+
+	var likert_bookings = {
       type: 'survey-likert',
-      questions: [{prompt: "I use websites like Bookings.com often", labels: scale_1}],
+      questions: [{prompt: "I use websites such as Bookings.com", labels: scale_1}],
       };
 
+	var likert_typeofclient = {
+      type: 'survey-likert',
+      questions: [{prompt: "I book a hotel for leisure", labels: scale_2},
+      {prompt: "I book a hotel for business purposes", labels: scale_2}],
+      };
     var likert_procedure = {
-      timeline: [likert_bookings],
+      timeline: [likert_bookings, likert_typeofclient],
       randomize_order: false,
-      // repetitions: 3
     }
-
-    // timeline.push(likert_scale);
     timeline.push(likert_procedure);
-
+	timeline.push(multi_choice_block);
     /* define instructions trial */
     var instructions = {
       type: "html-keyboard-response",
       stimulus: "<p>In this experiment, you will first see a fixation cross " +
-          "on the screen.</p><p>Then, shortly, you will see a <strong>picture</strong>. " +
-          "After the picture disappears a <strong> price </strong> will be shown. </p>" +
-          "<p>Answer whether you feel this price is either <strong> cheap </strong> or <strong> expensive </strong> for the picture you just saw. " +
+          "on the screen.</p><p>Then, shortly, you will see pictures of a <strong>hotel</strong>. " +
+          "After the pictures disappear a <strong> price </strong> will be shown. </p>" +
+          "<p>Answer whether you feel this price is either <strong> cheap </strong> or <strong> expensive </strong> for the hotel you just saw. " +
           "Please answer within 1.5 seconds.</p>" +
-          "<p> Press the <strong> F-key for cheap </strong> and the <strong> J-key for expensive </strong> </p>" +
+          "<p> Press the <strong> Z-key for cheap </strong> and the <strong> M-key for expensive </strong> </p>" +
           "<div style='width: 700px;'>"+
           /*"<div style='float: left;'><img src='img/blue.png'></img>" +
-          "<p class='small'><strong>Press the F key</strong></p></div>" +
+          "<p class='small'><strong>Press the Z key</strong></p></div>" +
           "<div class='float: right;'><img src='img/orange.png'></img>" +
-          "<p class='small'><strong>Press the J key</strong></p></div>" +
+          "<p class='small'><strong>Press the M key</strong></p></div>" +
           "</div>"+*/
-          "<p>Press any key to begin.</p>",
+          "<p>Press any key to begin with a practive round.</p> ",
       post_trial_gap: 1000
     };
     timeline.push(instructions);
 
-    var factors = {
-      logos: ['img/bar/bar_1.jpg', 'img/bar/bar_2.jpg','img/bar/bar_3.jpg','img/bar/bar_4.jpg','img/bar/bar_5.jpg',
-              'img/bathroom/bathroom_1.jpg','img/bathroom/bathroom_2.jpg','img/bathroom/bathroom_3.jpg','img/bathroom/bathroom_4.jpg','img/bathroom/bathroom_5.jpg',
-              'img/lobby/lobby_1.jpg','img/lobby/lobby_2.jpg','img/lobby/lobby_3.jpg','img/lobby/lobby_4.jpg','img/lobby/lobby_5.jpg',],
-      words: ['<div class = centerbox><div class = center-text>$100</div></div>','<div class = centerbox><div class = center-text>$200</div></div>']
+
+	//stimuli
+    var hotel_img = ['img/mosaiges/hotel1met.png', 'img/mosaiges/hotel1zonder.png','img/mosaiges/hotel2met.png','img/mosaiges/hotel2zonder.png','img/mosaiges/hotel3met.png', 'img/mosaiges/hotel3zonder.png',
+	            'img/mosaiges/hotel4met.png', 'img/mosaiges/hotel4zonder.png','img/mosaiges/hotel5met.png','img/mosaiges/hotel5zonder.png'];
+    var all_prices = ['<div class = centerbox><div class = center-text>$50</div></div>','<div class = centerbox><div class = center-text>$60</div></div>', '<div class = centerbox><div class = center-text>$70</div></div>',
+	          '<div class = centerbox><div class = center-text>$80</div></div>','<div class = centerbox><div class = center-text>$90</div></div>', '<div class = centerbox><div class = center-text>$100</div></div>',
+			  '<div class = centerbox><div class = center-text>$110</div></div>','<div class = centerbox><div class = center-text>$120</div></div>', '<div class = centerbox><div class = center-text>$130</div></div>',
+		      '<div class = centerbox><div class = center-text>$140</div></div>','<div class = centerbox><div class = center-text>$150</div></div>', '<div class = centerbox><div class = center-text>$160</div></div>',
+		      '<div class = centerbox><div class = center-text>$170</div></div>','<div class = centerbox><div class = center-text>$180</div></div>', '<div class = centerbox><div class = center-text>$190</div></div>',
+		      '<div class = centerbox><div class = center-text>$200</div></div>','<div class = centerbox><div class = center-text>$210</div></div>', '<div class = centerbox><div class = center-text>$220</div></div>',
+			  '<div class = centerbox><div class = center-text>$230</div></div>','<div class = centerbox><div class = center-text>$240</div></div>', '<div class = centerbox><div class = center-text>$250</div></div>',
+			  '<div class = centerbox><div class = center-text>$260</div></div>','<div class = centerbox><div class = center-text>$270</div></div>', '<div class = centerbox><div class = center-text>$280</div></div>',
+			  '<div class = centerbox><div class = center-text>$290</div></div>','<div class = centerbox><div class = center-text>$300</div></div>', '<div class = centerbox><div class = center-text>$310</div></div>',
+			  '<div class = centerbox><div class = center-text>$320</div></div>','<div class = centerbox><div class = center-text>$330</div></div>', '<div class = centerbox><div class = center-text>$340</div></div>',
+			  '<div class = centerbox><div class = center-text>$350</div></div>','<div class = centerbox><div class = center-text>$360</div></div>', '<div class = centerbox><div class = center-text>$370</div></div>',
+			  '<div class = centerbox><div class = center-text>$380</div></div>','<div class = centerbox><div class = center-text>$390</div></div>', '<div class = centerbox><div class = center-text>$400</div></div>'];
+
+
+
+	// practice design
+	var practice_design = [];
+	var k = 0;
+	for (k = 0; k < 5; ++k) {    // specify number of practice trials here
+	practice_hotel = jsPsych.randomization.sampleWithoutReplacement(hotel_img,1)
+	practice_price = jsPsych.randomization.sampleWithoutReplacement(all_prices,1)
+	   trial = {hotels: practice_hotel, prices: practice_price }
+       practice_design.push(trial)
     }
 
-    var full_design = jsPsych.randomization.factorial(factors, 1);
+	// full design
+	var full_design = [];
+
+	var i = 0;
+    var j = 0;
+    // for every hotel image
+    for (i = 0; i < hotel_img.length; ++i) {
+	  // add 2 random prices
+      for (j = 0; j < 2; ++j) {
+        var currentPrice = jsPsych.randomization.sampleWithoutReplacement(all_prices, 1)
+        trial = {hotels: hotel_img[i], prices: currentPrice }
+        // add it to design
+        full_design.push(trial)
+      }
+    }
 
 // show fixation cross
     var fixation = {
       type: 'html-keyboard-response',
       stimulus: '<div style="font-size:60px;">+</div>',
       choices: jsPsych.NO_KEYS,
-      trial_duration: 900,
+      trial_duration: 1500,
       data: {test_part: 'fixation'}
     }
-// show image
-    var test = {
+	// show practice hotel
+    var practice_hotel = {
       type: "image-keyboard-response",
-      // type: "categorize-image",
-      data: { screen_type: 'logo'},
-      stimulus: jsPsych.timelineVariable('logos'),
-      // stimulus: logos,
+      data: {screen_type: 'practice_hotel'},
+      stimulus: jsPsych.timelineVariable('hotels'),
       choices: jsPsych.NO_KEYS,
-      //data: jsPsych.timelineVariable('data'),
-      trial_duration: 2000,
+      trial_duration: 3500,
       /* on_finish: function(data){ */
       /* data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
     } */
     }
-// show target word
-    var word = {
-      type: 'html-keyboard-response',
-      stimulus: jsPsych.timelineVariable('words'),
-      choices: ['f','j'],
-      prompt: "<br><br><br><br><br><br><br><br><br><pre>Cheap (F)                                        (J) Expensive</pre>",
-      data: jsPsych.timelineVariable('data'),
-      trial_duration: 1500,
+// show hotel
+    var hotel = {
+      type: "image-keyboard-response",
+      data: {screen_type: 'hotel'},
+      stimulus: jsPsych.timelineVariable('hotels'),
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 3500,
+      /* on_finish: function(data){ */
+      /* data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+    } */
     }
-/*
-    var word = {
-      // type: 'image-keyboard-response',
-      type: "categorize-image",
-      data: { screen_type: 'targetWord'},
-      stimulus: jsPsych.timelineVariable('words'),
-      choices: ['f','j'],
-      data: jsPsych.timelineVariable('data'),
+
+// show practice price
+    var practice_price = {
+      type: "categorize-html",
+      data: { screen_type: 'practice_price'},
+      stimulus: jsPsych.timelineVariable('prices'),
+      choices: ['z','m'], //a-s for left-handed, k-l for right-handed
       trial_duration: 1500,
-      //timeout_message: "Too Slow!"
       show_stim_with_feedback: false,
       incorrect_text: "<p class='prompt'> </p>",
-      feedback_duration: 800, // duration of white before next trial starts
-      timeout_message: '<div class = centerbox><div class = center-text>Respond Faster!</div></div>',
+      prompt: '<div style= width:100vw ><div style="position:absolute; top:66vh; left:33%; display: inline-block" ;=""><span class="green"> Cheap (Z) </span></div> <div style="position:absolute; top:66vh; right:33%; display: inline-block" ;=""><span class="red"> (M) Expensive </span></div></div>',
+      feedback_duration: 1400, // duration of white before next trial starts
+      timeout_message: '<div class = centerbox><div class = center-text>Too Slow!</div></div>',
     }
-*/
+// show price
+    var price = {
+      type: "categorize-html",
+      data: { screen_type: 'price'},
+      stimulus: jsPsych.timelineVariable('prices'),
+      choices: ['z','m'], //a-s for left-handed, k-l for right-handed
+      trial_duration: 1500,
+      show_stim_with_feedback: false,
+      incorrect_text: "<p class='prompt'> </p>",
+      prompt: '<div style= width:100vw ><div style="position:absolute; top:66vh; left:33%; display: inline-block" ;=""><span class="green"> Cheap (Z) </span></div> <div style="position:absolute; top:66vh; right:33%; display: inline-block" ;=""><span class="red"> (M) Expensive </span></div></div>',
+      feedback_duration: 1400, // duration of white before next trial starts
+      timeout_message: '<div class = centerbox><div class = center-text>Too Slow!</div></div>',
+    }
+
+    var practice_procedure = {
+      timeline: [fixation, practice_hotel, practice_price],
+      timeline_variables: practice_design,
+      randomize_order: true,
+    }
     var test_procedure = {
-      timeline: [fixation, test, word],
+      timeline: [fixation, hotel, price],
       timeline_variables: full_design,
       randomize_order: true,
-      // repetitions: 3
+    //  sample: {
+    //           type: 'without-replacement',
+    //           size: 20, // 30 trials, with replacement
+    //       }
+    //  repetitions: 3
     }
 
-    timeline.push(test_procedure);
+    /* define debrief */ // Presented RTs don't make sense
+    var debrief_practiceblock = {
+      type: "html-keyboard-response",
+      stimulus: function() {
+	  var trials = jsPsych.data.get()
+      var rt = Math.round(trials.select('rt').mean());
+    return "Please respond as fast as possible."+
+           "<p>Press any key to start the experiment. </p>";
+          }
+        };
 
-    /* define debrief */
 
     var debrief_block = {
       type: "html-keyboard-response",
       stimulus: function() {
-
-    var trials = jsPsych.data.get().filter({test_part: 'test'});
-    // var correct_trials = trials.filter({correct: true});
-    // var accuracy = Math.round(correct_trials.count() / trials.count() * 100);
-    // var rt = Math.round(correct_trials.select('rt').mean());
-    var rt = Math.round(trials.select('rt').mean());
-    var trialNums = trials.count();
-/*
-    return "<p>Number of Trials "+trialNums+"% of the trials.</p>"+
-          "<p>Average response time on Happy x Rabo = "+rt+"ms.</p>"+
-          "<p>Average response time on Sad x Rabo = "+rt+"ms.</p>"+
-          "<p>Average response time on Angry x Rabo = "+rt+"ms.</p>"+
-          "<p>Press any key to complete the experiment. Thank you!</p>"; */
+	  var trials = jsPsych.data.get()
+      var rt = Math.round(trials.select('rt').mean());
+    return "<p>Please press any key to close the experiment.</p>"+
+           "<p>Thank you! </p>";
           }
         };
-
+    timeline.push(practice_procedure);
+	  timeline.push(debrief_practiceblock);
+    timeline.push(test_procedure);
     timeline.push(debrief_block);
-
     timeline.push({
       type: 'fullscreen',
       fullscreen_mode: false
     });
-
-
-
     /* start the experiment */
     jsPsych.init({
       timeline: timeline,
@@ -194,17 +265,17 @@
       on_finish: function() {
       jsPsych.data.displayData(); // displaying in browser in trial by trial form
       //jsPsych.data.displayData('csv'); // displaying in browser in csv form
-
       // select all trials
       var all_data = jsPsych.data.get();
       // get csv representation of data and log to console
       console.log(all_data.csv());
-      jsPsych.data.get().localSave('csv','mydata.csv'); // Save localy as csv
+	  var csvname = 'data' + subject_id + '.csv'
+      //jsPsych.data.get().localSave('csv','mydata.csv'); // Save localy as csv
+	  jsPsych.data.get().localSave('csv',csvname ); // Save localy as csv
       // When collecting online, visit: https://www.jspsych.org/overview/data/ for instructions on saving
       jsPsych.data.localSave('brand-experiment-results.csv', 'csv');
     }
     });
-
   </script>
   </body>
   </html>
