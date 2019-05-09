@@ -24,6 +24,7 @@ span.black {color:#000000;font-weight:bold;font-family:Calibri;font-size:20;}
 <script src="plugins/jspsych-categorize-image.js"></script>
 <script src="plugins/jspsych-categorize-html.js"></script>
 <script src="plugins/jspsych-survey-multi-choice.js"></script>
+<script src="plugins/jspsych-html-slider-response.js"></script>
 
 <script src='plugins/jspsych-call-function.js'></script>
 <script src='plugins/jspsych-survey-text.js'></script>
@@ -51,7 +52,7 @@ span.black {color:#000000;font-weight:bold;font-family:Calibri;font-size:20;}
     var welcome = {
       type: 'instructions',
       pages: ['Welcome to the experiment. Click next to begin.',
-        'You are going to participate in a study on hotels <p>Before we start the experiment, we will ask you to answer several demographic questions'],
+        'You are going to participate in a study on hotels. During this experiment we want you to attribute value to several hotels. <p>Before we start the experiment, we will ask you to answer several demographic questions'],
       show_clickable_nav: true,
       show_page_number: false
     }
@@ -76,16 +77,17 @@ span.black {color:#000000;font-weight:bold;font-family:Calibri;font-size:20;}
 
 	var likert_bookings = {
       type: 'survey-likert',
-      questions: [{prompt: "I use websites such as Bookings.com", labels: scale_1}],
+      questions: [{prompt: "I use websites such as Booking.com", labels: scale_1}],
       };
 
-	var likert_typeofclient = {
-      type: 'survey-likert',
-      questions: [{prompt: "I book a hotel for leisure", labels: scale_2},
-      {prompt: "I book a hotel for business purposes", labels: scale_2}],
-      };
+  var slider_typeofclient = {
+    type: 'html-slider-response',
+    stimulus: 'I primarily book hotels for:',
+    labels: ['Business purposes','Leisure'],
+  }
+
   var likert_procedure = {
-      timeline: [likert_bookings, likert_typeofclient],
+      timeline: [likert_bookings, slider_typeofclient],
       randomize_order: false,
     }
   timeline.push(likert_procedure);
@@ -106,8 +108,15 @@ span.black {color:#000000;font-weight:bold;font-family:Calibri;font-size:20;}
 
 
 	//stimuli
-    var hotel_img = ['img/mosaiges/hotel1met.jpg', 'img/mosaiges/hotel1zonder.jpg','img/mosaiges/hotel2met.jpg','img/mosaiges/hotel2zonder.jpg','img/mosaiges/hotel3met.jpg', 'img/mosaiges/hotel3zonder.jpg',
-	            'img/mosaiges/hotel4met.jpg', 'img/mosaiges/hotel4zonder.jpg','img/mosaiges/hotel5met.jpg','img/mosaiges/hotel5zonder.jpg'];
+    var condition = Math.floor(Math.random() * 2); // Random number generation to assign condition
+    if (condition < .5) { // If condition is 1, they get to see the images with pools
+      var hotel_img = ['img/mosaiges/hotel1met.jpg', 'img/mosaiges/hotel2met.jpg','img/mosaiges/hotel3met.jpg',
+                       'img/mosaiges/hotel4met.jpg','img/mosaiges/hotel5met.jpg'];
+    } else { //  If condition is 2, they get to see the images without pools
+      var hotel_img = ['img/mosaiges/hotel1zonder.jpg', 'img/mosaiges/hotel2zonder.jpg', 'img/mosaiges/hotel3zonder.jpg',
+                       'img/mosaiges/hotel4zonder.jpg','img/mosaiges/hotel5zonder.jpg'];
+    };
+
     var all_prices = ['<div class = centerbox><div class = center-text>$50</div></div>','<div class = centerbox><div class = center-text>$60</div></div>', '<div class = centerbox><div class = center-text>$70</div></div>',
 	          '<div class = centerbox><div class = center-text>$80</div></div>','<div class = centerbox><div class = center-text>$90</div></div>', '<div class = centerbox><div class = center-text>$100</div></div>',
 			  '<div class = centerbox><div class = center-text>$110</div></div>','<div class = centerbox><div class = center-text>$120</div></div>', '<div class = centerbox><div class = center-text>$130</div></div>',
@@ -263,7 +272,7 @@ span.black {color:#000000;font-weight:bold;font-family:Calibri;font-size:20;}
       var all_data = jsPsych.data.get();
       // get csv representation of data and log to console
       console.log(all_data.csv());
-	  var csvname = 'data' + subject_id + '.csv'
+	  var csvname = 'data' + 'id_'+ subject_id + 'condition_' + condition + '.csv'
       //jsPsych.data.get().localSave('csv','mydata.csv'); // Save localy as csv
 	  jsPsych.data.get().localSave('csv',csvname ); // Save localy as csv
       // When collecting online, visit: https://www.jspsych.org/overview/data/ for instructions on saving
